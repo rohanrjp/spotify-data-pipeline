@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Area, AreaChart } from 'recharts';
 import { format } from 'date-fns';
+import { Skeleton } from '@/app/components/ui/skeleton';
 
 const weeklyComparison = [
   { week: 'Week 1', thisYear: 845, lastYear: 723 },
@@ -62,7 +63,27 @@ export function Timeline() {
     fetchTimeline();
   }, []);
 
-  if (loading) return <div className="p-6 text-white">Loading timeline...</div>;
+  if (loading) return (
+    <div className="p-6 space-y-6">
+      <div className="space-y-2">
+        <Skeleton className="h-8 w-48" />
+        <Skeleton className="h-4 w-64" />
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {[1, 2, 3].map((i) => (
+          <Skeleton key={i} className="h-32 rounded-xl" />
+        ))}
+      </div>
+
+      <Skeleton className="h-[400px] rounded-xl" />
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <Skeleton className="h-[300px] rounded-xl" />
+        <Skeleton className="h-[300px] rounded-xl" />
+      </div>
+    </div>
+  );
 
   return (
     <div className="p-6 space-y-6">

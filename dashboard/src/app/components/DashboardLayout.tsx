@@ -1,6 +1,7 @@
 import { Outlet, Link, useLocation } from 'react-router';
 import { Home, Music, Disc3, Palette, ListMusic, TrendingUp, Sparkles, Menu, X } from 'lucide-react';
 import { useState } from 'react';
+import { ModeToggle } from './mode-toggle';
 
 const navigation = [
   { name: 'Overview', href: '/', icon: Home },
@@ -17,29 +18,29 @@ export function DashboardLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
-    <div className="flex h-screen bg-black">
+    <div className="flex h-screen bg-background text-foreground transition-colors duration-300">
       {/* Mobile sidebar backdrop */}
       {sidebarOpen && (
         <div
-          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+          className="fixed inset-0 bg-background/80 backdrop-blur-sm z-40 lg:hidden"
           onClick={() => setSidebarOpen(false)}
         />
       )}
 
       {/* Sidebar */}
       <aside
-        className={`fixed lg:static inset-y-0 left-0 z-50 w-64 bg-gradient-to-b from-gray-900 to-black border-r border-gray-800 transform transition-transform duration-300 ease-in-out lg:translate-x-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'
+        className={`fixed lg:static inset-y-0 left-0 z-50 w-64 bg-sidebar border-r border-border transform transition-transform duration-300 ease-in-out lg:translate-x-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'
           }`}
       >
         <div className="flex flex-col h-full">
           {/* Logo */}
-          <div className="flex items-center gap-3 p-6 border-b border-gray-800">
+          <div className="flex items-center gap-3 p-6 border-b border-sidebar-border">
             <div className="w-10 h-10 rounded-full bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center">
               <Music className="w-6 h-6 text-white" />
             </div>
             <div>
-              <h1 className="text-xl text-white">Spotify Analytics</h1>
-              <p className="text-xs text-gray-400">Your Music Insights</p>
+              <h1 className="text-xl font-bold text-sidebar-foreground">Spotify Analytics</h1>
+              <p className="text-xs text-sidebar-foreground/70">Your Music Insights</p>
             </div>
           </div>
 
@@ -54,8 +55,8 @@ export function DashboardLayout() {
                   to={item.href}
                   onClick={() => setSidebarOpen(false)}
                   className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${isActive
-                    ? 'bg-green-500 text-white'
-                    : 'text-gray-400 hover:bg-gray-800 hover:text-white'
+                    ? 'bg-primary text-primary-foreground'
+                    : 'text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
                     }`}
                 >
                   <Icon className="w-5 h-5" />
@@ -66,12 +67,12 @@ export function DashboardLayout() {
           </nav>
 
           {/* User info */}
-          <div className="p-4 border-t border-gray-800">
-            <div className="flex items-center gap-3 p-3 bg-gray-800/50 rounded-lg">
+          <div className="p-4 border-t border-sidebar-border">
+            <div className="flex items-center gap-3 p-3 bg-sidebar-accent/50 rounded-lg">
               <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-400 to-pink-400" />
               <div>
-                <p className="text-sm text-white">Your Account</p>
-                <p className="text-xs text-gray-400">Premium User</p>
+                <p className="text-sm font-medium text-sidebar-foreground">Your Account</p>
+                <p className="text-xs text-sidebar-foreground/70">Premium User</p>
               </div>
             </div>
           </div>
@@ -81,23 +82,24 @@ export function DashboardLayout() {
       {/* Main content */}
       <div className="flex-1 flex flex-col min-w-0">
         {/* Top bar */}
-        <header className="bg-gray-900/50 backdrop-blur-sm border-b border-gray-800 px-6 py-4 flex items-center gap-4">
+        <header className="bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border px-6 py-4 flex items-center gap-4 sticky top-0 z-30">
           <button
             onClick={() => setSidebarOpen(!sidebarOpen)}
-            className="lg:hidden text-white p-2 hover:bg-gray-800 rounded-lg"
+            className="lg:hidden text-foreground p-2 hover:bg-accent rounded-lg"
           >
             {sidebarOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
           </button>
           <div className="flex-1">
-            <h2 className="text-2xl text-white">
+            <h2 className="text-2xl font-bold text-foreground">
               {navigation.find((item) => item.href === location.pathname)?.name || 'Overview'}
             </h2>
           </div>
           <div className="flex items-center gap-4">
-            <div className="hidden md:flex items-center gap-2 px-4 py-2 bg-gray-800 rounded-lg">
-              <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
-              <span className="text-sm text-gray-400">Last synced: 2 hours ago</span>
+            <div className="hidden md:flex items-center gap-2 px-4 py-2 bg-accent/50 rounded-lg border border-border">
+              <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+              <span className="text-sm text-muted-foreground">Last synced: 2 hours ago</span>
             </div>
+            <ModeToggle />
           </div>
         </header>
 
