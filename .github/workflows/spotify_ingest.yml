@@ -34,3 +34,19 @@ jobs:
         run: |
           export PYTHONPATH=$PYTHONPATH:$(pwd)/data-pipeline/ingestion
           uv run --project data-pipeline python data-pipeline/ingestion/main.py
+
+      - name: Run dbt Transforms
+        env:
+          DBT_HOST: ${{ secrets.DBT_HOST }}
+          DBT_USER: ${{ secrets.DBT_USER }}
+          DBT_PASSWORD: ${{ secrets.DBT_PASSWORD }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: |
+          # 1. Install dbt dependencies (like dbt-utils if you use it)
+          uv run --project data-pipeline dbt deps --project-dir data-pipeline
+          
+          # 2. Run the models (Bronze -> Silver -> Gold)
+          uv run --project data-pipeline dbt run --project-dir data-pipeline --target prod
+          
+          # 3. Optional: Run tests to make sure no duplicates snuck in
+          uv run --project data-pipeline dbt test --project-dir data-pipeline --target prod
