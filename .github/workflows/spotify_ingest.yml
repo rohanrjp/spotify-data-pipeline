@@ -44,6 +44,12 @@ jobs:
         run: |
           uv run --project data-pipeline dbt deps --project-dir data-pipeline/spotify_transform
           
-          uv run --project data-pipeline dbt run --project-dir data-pipeline/spotify_transform --target prod
+          uv run --project data-pipeline dbt run \
+            --project-dir data-pipeline/spotify_transform \
+            --profiles-dir data-pipeline/spotify_transform \
+            --target prod
           
-          uv run --project data-pipeline dbt test --project-dir data-pipeline/spotify_transform --target prod
+          uv run --project data-pipeline dbt test \
+            --project-dir data-pipeline/spotify_transform \
+            --profiles-dir data-pipeline/spotify_transform \
+            --target prod
