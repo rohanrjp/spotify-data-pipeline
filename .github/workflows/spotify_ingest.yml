@@ -23,11 +23,14 @@ jobs:
 
       - name: Run Ingestion Script
         env:
-          SPOTIFY_CLIENT_ID: ${{ secrets.SPOTIPY_CLIENT_ID }}
-          SPOTIFY_CLIENT_SECRET: ${{ secrets.SPOTIPY_CLIENT_SECRET }}
-          SPOTIFY_REDIRECT_URL: ${{ secrets.SPOTIPY_REDIRECT_URI }}
-          SPOTIFY_REFRESH_TOKEN: ${{ secrets.SPOTIPY_REFRESH_TOKEN }}
-          DATABASE_URL: ${{ secrets.NEON_DATABASE_URL }}
+          SPOTIFY_CLIENT_ID: ${{ secrets.SPOTIFY_CLIENT_ID }}
+          SPOTIFY_CLIENT_SECRET: ${{ secrets.SPOTIFY_CLIENT_SECRET }}
+          SPOTIFY_REDIRECT_URL: ${{ secrets.SPOTIFY_REDIRECT_URL }}
+          SPOTIFY_REFRESH_TOKEN: ${{ secrets.SPOTIFY_REFRESH_TOKEN }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          DBT_PASSWORD: ${{ secrets.DBT_PASSWORD }}
+          DBT_HOST: ${{ secrets.DBT_HOST }}
+          DBT_USER: ${{ secrets.DBT_USER }}
         run: |
           export PYTHONPATH=$PYTHONPATH:$(pwd)/data-pipeline/ingestion
           uv run --project data-pipeline python data-pipeline/ingestion/main.py
