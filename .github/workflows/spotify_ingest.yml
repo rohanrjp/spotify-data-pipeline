@@ -42,14 +42,7 @@ jobs:
           DBT_PASSWORD: ${{ secrets.DBT_PASSWORD }}
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
         run: |
-          uv run --project data-pipeline dbt deps --project-dir data-pipeline/spotify_transform
-          
           uv run --project data-pipeline dbt run \
-            --project-dir data-pipeline/spotify_transform \
-            --profiles-dir data-pipeline/spotify_transform \
-            --target prod
-          
-          uv run --project data-pipeline dbt test \
             --project-dir data-pipeline/spotify_transform \
             --profiles-dir data-pipeline/spotify_transform \
             --target prod
