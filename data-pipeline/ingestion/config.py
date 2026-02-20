@@ -5,6 +5,9 @@ class Settings(BaseSettings):
     SPOTIFY_CLIENT_SECRET:str
     SPOTIFY_REDIRECT_URL:str
     DATABASE_URL:str
+    DBT_PASSWORD:str
+    DBT_HOST:str
+    DBT_USER:str
     
     model_config=SettingsConfigDict(env_file='.env',env_file_encoding='utf-8')
 

@@ -1,0 +1,14 @@
+version: 2
+
+sources:
+  - name: spotify_bronze
+    database: neondb
+    schema: public      
+    tables:
+      - name: bronze_raw_tracks
+        description: "Raw JSON data of recently played tracks from Spotify API"
+        columns:
+          - name: played_at
+            tests:
+              - unique
+              - not_null
