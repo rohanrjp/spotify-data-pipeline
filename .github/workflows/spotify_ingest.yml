@@ -19,7 +19,7 @@ jobs:
         run: uv python install
 
       - name: Install Dependencies
-        run: uv sync 
+        run: uv sync --project data-pipeline
 
       - name: Run Ingestion Script
         env:
@@ -29,6 +29,5 @@ jobs:
           SPOTIPY_REFRESH_TOKEN: ${{ secrets.SPOTIPY_REFRESH_TOKEN }}
           NEON_DATABASE_URL: ${{ secrets.NEON_DATABASE_URL }}
         run: |
-          # We move into the folder so 'from extract import' works
-          cd data-pipeline/ingestion
-          uv run python main.py
+          export PYTHONPATH=$PYTHONPATH:$(pwd)/data-pipeline/ingestion
+          uv run --project data-pipeline python data-pipeline/ingestion/main.py
