@@ -8,6 +8,7 @@ class Settings(BaseSettings):
     DBT_PASSWORD:str
     DBT_HOST:str
     DBT_USER:str
+    SPOTIFY_REFRESH_TOKEN:str
     
     model_config=SettingsConfigDict(env_file='.env',env_file_encoding='utf-8')
 

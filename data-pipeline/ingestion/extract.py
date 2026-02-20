@@ -10,8 +10,13 @@ spotify_auth_manager = SpotifyOAuth(
     client_secret=settings.SPOTIFY_CLIENT_SECRET,
     scope="user-read-recently-played user-top-read user-library-read",
     redirect_uri=settings.SPOTIFY_REDIRECT_URL,
-    cache_path=".spotify_cache"
+    open_browser=False,
 )
+
+refresh_token = settings.SPOTIFY_REFRESH_TOKEN
+
+if refresh_token:
+    spotify_auth_manager.refresh_access_token(refresh_token)
 
 spotify_client = Spotify(auth_manager=spotify_auth_manager)
 
