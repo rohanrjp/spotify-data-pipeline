@@ -130,5 +130,4 @@ out
 
 # Vercel
 .vercel
-data-pipeline/spotify_transform/profiles.yml
 data-pipeline/spotify_transform/.user.yml

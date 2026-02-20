@@ -1,0 +1,12 @@
+spotify_transform:
+  outputs:
+    dev:
+      dbname: neondb
+      host: "{{ env_var('DBT_HOST') }}"
+      pass: "{{ env_var('DBT_PASSWORD') }}"
+      port: 5432
+      schema: analytics
+      threads: 1
+      type: postgres
+      user: "{{ env_var('DBT_USER') }}"
+  target: dev

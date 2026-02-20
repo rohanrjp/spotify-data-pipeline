@@ -42,8 +42,7 @@ jobs:
           DBT_PASSWORD: ${{ secrets.DBT_PASSWORD }}
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
         run: |
-          echo "Current Directory: $(pwd)"
-          echo "Looking for profiles.yml in:"
-          ls data-pipeline/spotify_transform/profiles.yml
-          echo "Content of dbt_project.yml profile line:"
-          grep "profile:" data-pipeline/spotify_transform/dbt_project.yml
+            uv run --project data-pipeline dbt run \
+            --project-dir ${{ github.workspace }}/data-pipeline/spotify_transform \
+            --profiles-dir ${{ github.workspace }}/data-pipeline/spotify_transform \
+            --target prod
