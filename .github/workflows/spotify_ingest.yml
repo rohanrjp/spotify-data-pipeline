@@ -45,4 +45,4 @@ jobs:
             uv run --project data-pipeline dbt run \
             --project-dir ${{ github.workspace }}/data-pipeline/spotify_transform \
             --profiles-dir ${{ github.workspace }}/data-pipeline/spotify_transform \
-            --target prod
+            --target dev
