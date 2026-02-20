@@ -3,16 +3,37 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import { format } from 'date-fns';
 import { Skeleton } from '@/app/components/ui/skeleton';
 
-const weeklyComparison = [
-  { week: 'Week 1', thisYear: 845, lastYear: 723 },
-  { week: 'Week 2', thisYear: 923, lastYear: 812 },
-  { week: 'Week 3', thisYear: 1012, lastYear: 856 },
-  { week: 'Week 4', thisYear: 1098, lastYear: 934 },
-];
+interface TimelineMonth {
+  month: string;
+  rawDate: Date;
+  plays: number;
+  hours: number;
+}
+
+interface TopMonth {
+  month: string;
+  year: string;
+  plays: number;
+  hours: number;
+  highlight: boolean;
+}
+
+interface WeeklyComparison {
+  week: string;
+  thisYear: number;
+  lastYear: number;
+}
+
+interface ArtistDiscovery {
+  month: string;
+  artists: number;
+}
 
 export function Timeline() {
-  const [timelineData, setTimelineData] = useState<any[]>([]);
-  const [topMonths, setTopMonths] = useState<any[]>([]);
+  const [timelineData, setTimelineData] = useState<TimelineMonth[]>([]);
+  const [topMonths, setTopMonths] = useState<TopMonth[]>([]);
+  const [weeklyComparison, setWeeklyComparison] = useState<WeeklyComparison[]>([]);
+  const [artistDiscoveryData, setArtistDiscoveryData] = useState<ArtistDiscovery[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -21,32 +42,20 @@ export function Timeline() {
         const res = await fetch('/api/timeline');
         const data = await res.json();
 
-        // Aggregate daily data to monthly for the chart
-        const monthlyAggregation: Record<string, any> = {};
-
-        data.forEach((item: any) => {
-          const date = new Date(item.date);
-          const monthKey = format(date, 'MMM yyyy');
-
-          if (!monthlyAggregation[monthKey]) {
-            monthlyAggregation[monthKey] = {
-              month: monthKey,
-              rawDate: date,
-              plays: 0,
-              hours: 0,
-              artists: Math.floor(Math.random() * 100) + 50 // Mocking
-            };
-          }
-          monthlyAggregation[monthKey].plays += parseInt(item.count);
-          monthlyAggregation[monthKey].hours += Math.round(parseInt(item.count) * 0.05); // Mock hours
+        const monthly = (data.monthly ?? []).map((item: any) => {
+          const date = new Date(item.period_date);
+          return {
+            month: format(date, 'MMM yyyy'),
+            rawDate: date,
+            plays: Number(item.plays),
+            hours: Math.round((Number(item.hours) || 0) / 60)
+          };
         });
 
-        const sortedMonths = Object.values(monthlyAggregation).sort((a: any, b: any) => a.rawDate - b.rawDate);
-        setTimelineData(sortedMonths);
+        setTimelineData(monthly);
 
-        // Determine top months
-        const sortedByPlays = [...sortedMonths].sort((a: any, b: any) => b.plays - a.plays).slice(0, 3);
-        setTopMonths(sortedByPlays.map((m: any, idx: number) => ({
+        const sortedByPlays = [...monthly].sort((a, b) => b.plays - a.plays).slice(0, 3);
+        setTopMonths(sortedByPlays.map((m, idx) => ({
           month: format(m.rawDate, 'MMMM'),
           year: format(m.rawDate, 'yyyy'),
           plays: m.plays,
@@ -54,6 +63,16 @@ export function Timeline() {
           highlight: idx === 0
         })));
 
+        setWeeklyComparison((data.weekly ?? []).map((item: any) => ({
+          week: item.week,
+          thisYear: Number(item.this_year),
+          lastYear: Number(item.last_year)
+        })));
+
+        setArtistDiscoveryData((data.artistDiscovery ?? []).map((item: any) => ({
+          month: format(new Date(item.period_date), 'MMM yyyy'),
+          artists: Number(item.artists)
+        })));
       } catch (error) {
         console.error('Failed to fetch timeline:', error);
       } finally {
@@ -87,13 +106,11 @@ export function Timeline() {
 
   return (
     <div className="p-6 space-y-6">
-      {/* Header */}
       <div>
         <h2 className="text-3xl text-white mb-2">Listening Timeline</h2>
         <p className="text-gray-400">Track your music journey over time</p>
       </div>
 
-      {/* Top Months */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {topMonths.map((month, index) => (
           <div
@@ -125,7 +142,6 @@ export function Timeline() {
         ))}
       </div>
 
-      {/* Monthly Trend */}
       <div className="bg-gray-900 border border-gray-800 rounded-xl p-6">
         <div className="flex items-center justify-between mb-6">
           <h3 className="text-xl text-white">Monthly Listening Activity</h3>
@@ -156,9 +172,8 @@ export function Timeline() {
         </ResponsiveContainer>
       </div>
 
-      {/* Weekly Comparison */}
       <div className="bg-gray-900 border border-gray-800 rounded-xl p-6">
-        <h3 className="text-xl text-white mb-6">This Month vs Last Year</h3>
+        <h3 className="text-xl text-white mb-6">This Year vs Last Year</h3>
         <ResponsiveContainer width="100%" height={300}>
           <AreaChart data={weeklyComparison}>
             <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
@@ -172,23 +187,12 @@ export function Timeline() {
             <Area type="monotone" dataKey="thisYear" stroke="#10b981" fill="#10b981" fillOpacity={0.6} />
           </AreaChart>
         </ResponsiveContainer>
-        <div className="flex justify-center gap-8 mt-4">
-          <div className="flex items-center gap-2">
-            <div className="w-3 h-3 rounded-full bg-gray-500" />
-            <span className="text-sm text-gray-400">Feb 2025</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="w-3 h-3 rounded-full bg-green-500" />
-            <span className="text-sm text-gray-400">Feb 2026</span>
-          </div>
-        </div>
       </div>
 
-      {/* Artist Discovery Timeline */}
       <div className="bg-gray-900 border border-gray-800 rounded-xl p-6">
         <h3 className="text-xl text-white mb-6">Artist Discovery Over Time</h3>
         <ResponsiveContainer width="100%" height={250}>
-          <AreaChart data={timelineData}>
+          <AreaChart data={artistDiscoveryData}>
             <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
             <XAxis dataKey="month" stroke="#9ca3af" angle={-45} textAnchor="end" height={80} />
             <YAxis stroke="#9ca3af" />
