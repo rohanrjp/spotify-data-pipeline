@@ -1,5 +1,5 @@
 import { VercelRequest, VercelResponse } from '@vercel/node';
-import { query } from './db';
+import { query } from './db.js';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   const grainParam = (req.query.grain as string) || 'weekly';
