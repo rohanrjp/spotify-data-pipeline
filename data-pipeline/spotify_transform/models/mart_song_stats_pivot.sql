@@ -30,3 +30,4 @@ UNION ALL
 SELECT * FROM monthly_stats
 UNION ALL
 SELECT * FROM yearly_stats
+ORDER BY period_date DESC, play_count DESC
