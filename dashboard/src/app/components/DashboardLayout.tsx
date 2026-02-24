@@ -7,7 +7,7 @@ const navigation = [
   { name: 'Overview', href: '/', icon: Home },
   { name: 'Artists', href: '/artists', icon: Music },
   { name: 'Songs', href: '/songs', icon: Disc3 },
-  { name: 'Genres', href: '/genres', icon: Palette },
+  { name: 'Albums', href: '/albums', icon: Palette },
   { name: 'Playlists', href: '/playlists', icon: ListMusic },
   { name: 'Timeline', href: '/timeline', icon: TrendingUp },
   { name: 'Weekly Wrapped', href: '/weekly-wrapped', icon: Sparkles },
