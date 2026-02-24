@@ -14,7 +14,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   try {
     let sqlQuery = `
-      SELECT * FROM analytics.mart_artist_stats_pivot
+      SELECT * FROM analytics.mart_album_stats_pivot
       WHERE grain = $1
     `;
     const params: any[] = [dbGrain];

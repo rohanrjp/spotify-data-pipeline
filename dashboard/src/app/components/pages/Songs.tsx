@@ -14,7 +14,7 @@ export function Songs() {
 
   useEffect(() => {
     async function loadPeriods() {
-      const res = await fetch(`/api/periods?grain=${grain}`);
+      const res = await fetch(`/api/periods?source=songs&grain=${grain}`);
       const data = await res.json();
       setPeriods(data);
       if (data.length > 0) setSelectedDate(data[0].period_date);
