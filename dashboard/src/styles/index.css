@@ -11,3 +11,12 @@ body,
   background-color: var(--background);
   color: var(--foreground);
 }
+
+@keyframes gradient-xy {
+  0%, 100% { background-size: 400% 400%; background-position: left center; }
+  50% { background-size: 200% 200%; background-position: right center; }
+}
+
+.animate-gradient-xy {
+  animation: gradient-xy 3s ease infinite;
+}

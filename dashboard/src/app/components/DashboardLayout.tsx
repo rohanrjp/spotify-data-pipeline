@@ -1,6 +1,7 @@
 import { Outlet, Link, useLocation } from 'react-router';
-import { Home, Music, Disc3, Palette, ListMusic, TrendingUp, Sparkles, Menu, X } from 'lucide-react';
+import { Home, Music, Disc3, Palette, TrendingUp, Sparkles, Menu, X } from 'lucide-react';
 import { useState } from 'react';
+import { Settings, Crown,} from 'lucide-react';
 import { ModeToggle } from './mode-toggle';
 
 const navigation = [
@@ -8,7 +9,6 @@ const navigation = [
   { name: 'Artists', href: '/artists', icon: Music },
   { name: 'Songs', href: '/songs', icon: Disc3 },
   { name: 'Albums', href: '/albums', icon: Palette },
-  { name: 'Playlists', href: '/playlists', icon: ListMusic },
   { name: 'Timeline', href: '/timeline', icon: TrendingUp },
   { name: 'Weekly Wrapped', href: '/weekly-wrapped', icon: Sparkles },
 ];
@@ -67,15 +67,40 @@ export function DashboardLayout() {
           </nav>
 
           {/* User info */}
-          <div className="p-4 border-t border-sidebar-border">
-            <div className="flex items-center gap-3 p-3 bg-sidebar-accent/50 rounded-lg">
-              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-400 to-pink-400" />
-              <div>
-                <p className="text-sm font-medium text-sidebar-foreground">Your Account</p>
-                <p className="text-xs text-sidebar-foreground/70">Premium User</p>
-              </div>
-            </div>
-          </div>
+          <div className="p-4 border-t border-white/5 bg-gradient-to-t from-white/[0.02] to-transparent">
+  <div className="group relative flex items-center gap-3 p-3 rounded-2xl transition-all duration-300 hover:bg-white/[0.05] border border-transparent hover:border-white/10">
+    
+    {/* Avatar with Status Glow */}
+    <div className="relative">
+      <div className="w-11 h-11 rounded-full p-[2px] bg-gradient-to-tr from-indigo-500 via-purple-500 to-pink-500 animate-gradient-xy">
+        <div className="w-full h-full rounded-full bg-slate-900 flex items-center justify-center overflow-hidden border-2 border-slate-900">
+           {/* If you have an image, use it here, otherwise this gradient looks premium */}
+           <div className="w-full h-full bg-gradient-to-br from-indigo-400 to-cyan-400" />
+        </div>
+      </div>
+      {/* Online Status Indicator */}
+      <div className="absolute bottom-0 right-0 w-3 h-3 bg-emerald-500 border-2 border-[#0b0e14] rounded-full shadow-[0_0_10px_rgba(16,185,129,0.5)]" />
+    </div>
+
+    {/* Identity */}
+    <div className="flex-1 min-w-0">
+      <p className="text-sm font-bold text-white truncate group-hover:text-indigo-300 transition-colors">
+        Rohan Paul
+      </p>
+      <div className="flex items-center gap-1.5">
+        <Crown size={12} className="text-amber-400 fill-amber-400/20" />
+        <span className="text-[10px] font-black uppercase tracking-widest text-slate-500 group-hover:text-slate-400">
+          Premium
+        </span>
+      </div>
+    </div>
+
+    {/* Action Button */}
+    <button className="opacity-0 group-hover:opacity-100 p-2 hover:bg-white/10 rounded-lg transition-all text-slate-500 hover:text-white">
+      <Settings size={16} />
+    </button>
+  </div>
+</div>
         </div>
       </aside>
 
