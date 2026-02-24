@@ -4,7 +4,6 @@ import { Overview } from './components/pages/Overview';
 import { Artists } from './components/pages/Artists';
 import { Songs } from './components/pages/Songs';
 import { Albums } from './components/pages/Albums';
-import { Playlists } from './components/pages/Playlists';
 import { Timeline } from './components/pages/Timeline';
 import { WeeklyWrapped } from './components/pages/WeeklyWrapped';
 
@@ -17,7 +16,6 @@ export const router = createBrowserRouter([
       { path: 'artists', Component: Artists },
       { path: 'songs', Component: Songs },
       { path: 'albums', Component: Albums },
-      { path: 'playlists', Component: Playlists },
       { path: 'timeline', Component: Timeline },
       { path: 'weekly-wrapped', Component: WeeklyWrapped },
     ],
