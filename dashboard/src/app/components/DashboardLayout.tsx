@@ -1,6 +1,6 @@
 import { Outlet, Link, useLocation } from 'react-router';
 import { Home, Music, Disc3, Palette, TrendingUp, Sparkles, Menu, X } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Settings, Crown,} from 'lucide-react';
 import { ModeToggle } from './mode-toggle';
 
@@ -16,6 +16,43 @@ const navigation = [
 export function DashboardLayout() {
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [lastSyncedText, setLastSyncedText] = useState('Sync time unavailable');
+
+  useEffect(() => {
+    async function fetchLastSynced() {
+      try {
+        const response = await fetch('/api/last-synced');
+        const data = await response.json();
+        const lastSyncedAt = data?.lastSyncedAt;
+
+        if (!lastSyncedAt) {
+          setLastSyncedText('Sync time unavailable');
+          return;
+        }
+
+        const parsedDate = new Date(lastSyncedAt);
+        if (Number.isNaN(parsedDate.getTime())) {
+          setLastSyncedText('Sync time unavailable');
+          return;
+        }
+
+        setLastSyncedText(
+          parsedDate.toLocaleString(undefined, {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric',
+            hour: 'numeric',
+            minute: '2-digit',
+          }),
+        );
+      } catch (error) {
+        console.error('Failed to fetch last synced timestamp:', error);
+        setLastSyncedText('Sync time unavailable');
+      }
+    }
+
+    fetchLastSynced();
+  }, []);
 
   return (
     <div className="flex h-screen bg-background text-foreground transition-colors duration-300">
@@ -122,7 +159,7 @@ export function DashboardLayout() {
           <div className="flex items-center gap-4">
             <div className="hidden md:flex items-center gap-2 px-4 py-2 bg-accent/50 rounded-lg border border-border">
               <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-              <span className="text-sm text-muted-foreground">Last synced: 2 hours ago</span>
+              <span className="text-sm text-muted-foreground">Last synced: {lastSyncedText}</span>
             </div>
             <ModeToggle />
           </div>
