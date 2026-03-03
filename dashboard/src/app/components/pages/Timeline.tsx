@@ -3,45 +3,42 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import { format } from 'date-fns';
 import { Skeleton } from '@/app/components/ui/skeleton';
 
-const weeklyComparison = [
-  { week: 'Week 1', thisYear: 845, lastYear: 723 },
-  { week: 'Week 2', thisYear: 923, lastYear: 812 },
-  { week: 'Week 3', thisYear: 1012, lastYear: 856 },
-  { week: 'Week 4', thisYear: 1098, lastYear: 934 },
-];
+const grainLabelMap: Record<string, string> = {
+  weekly: 'Week',
+  monthly: 'Month',
+  yearly: 'Year',
+};
 
 export function Timeline() {
   const [timelineData, setTimelineData] = useState<any[]>([]);
   const [topMonths, setTopMonths] = useState<any[]>([]);
+  const [grain, setGrain] = useState<'weekly' | 'monthly' | 'yearly'>('monthly');
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function fetchTimeline() {
+      setLoading(true);
       try {
-        const res = await fetch('/api/timeline');
+        const res = await fetch(`/api/timeline?grain=${grain}`);
         const data = await res.json();
 
-        // Aggregate daily data to monthly for the chart
-        const monthlyAggregation: Record<string, any> = {};
+        const sortedMonths = (Array.isArray(data) ? data : []).map((item: any) => {
+          const rawDate = new Date(item.date);
+          const label = grain === 'weekly'
+            ? format(rawDate, 'dd MMM yyyy')
+            : grain === 'monthly'
+              ? format(rawDate, 'MMM yyyy')
+              : format(rawDate, 'yyyy');
 
-        data.forEach((item: any) => {
-          const date = new Date(item.date);
-          const monthKey = format(date, 'MMM yyyy');
+          return {
+            rawDate,
+            month: label,
+            plays: Number(item.count || 0),
+            hours: Number(item.hours || 0),
+            artists: Number(item.artists || 0),
+          };
+        }).sort((a: any, b: any) => a.rawDate - b.rawDate);
 
-          if (!monthlyAggregation[monthKey]) {
-            monthlyAggregation[monthKey] = {
-              month: monthKey,
-              rawDate: date,
-              plays: 0,
-              hours: 0,
-              artists: Math.floor(Math.random() * 100) + 50 // Mocking
-            };
-          }
-          monthlyAggregation[monthKey].plays += parseInt(item.count);
-          monthlyAggregation[monthKey].hours += Math.round(parseInt(item.count) * 0.05); // Mock hours
-        });
-
-        const sortedMonths = Object.values(monthlyAggregation).sort((a: any, b: any) => a.rawDate - b.rawDate);
         setTimelineData(sortedMonths);
 
         // Determine top months
@@ -61,7 +58,16 @@ export function Timeline() {
       }
     }
     fetchTimeline();
-  }, []);
+  }, [grain]);
+
+  const comparisonData = timelineData.slice(-8).map((entry: any, index: number) => {
+    const previousIndex = index - 1;
+    return {
+      period: entry.month,
+      current: entry.plays,
+      previous: previousIndex >= 0 ? timelineData[timelineData.length - 8 + previousIndex]?.plays || 0 : 0,
+    };
+  });
 
   if (loading) return (
     <div className="p-6 space-y-6">
@@ -91,6 +97,17 @@ export function Timeline() {
       <div>
         <h2 className="text-3xl text-white mb-2">Listening Timeline</h2>
         <p className="text-gray-400">Track your music journey over time</p>
+        <div className="mt-4 inline-flex bg-white/5 p-1 rounded-xl border border-white/10">
+          {(['weekly', 'monthly', 'yearly'] as const).map((option) => (
+            <button
+              key={option}
+              onClick={() => setGrain(option)}
+              className={`px-3 py-2 rounded-lg text-xs font-black uppercase ${grain === option ? 'bg-purple-600 text-white' : 'text-slate-400 hover:text-white'}`}
+            >
+              {option}
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* Top Months */}
@@ -158,28 +175,28 @@ export function Timeline() {
 
       {/* Weekly Comparison */}
       <div className="bg-gray-900 border border-gray-800 rounded-xl p-6">
-        <h3 className="text-xl text-white mb-6">This Month vs Last Year</h3>
+        <h3 className="text-xl text-white mb-6">{grainLabelMap[grain]}-to-{grainLabelMap[grain]} Comparison</h3>
         <ResponsiveContainer width="100%" height={300}>
-          <AreaChart data={weeklyComparison}>
+          <AreaChart data={comparisonData}>
             <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
-            <XAxis dataKey="week" stroke="#9ca3af" />
+            <XAxis dataKey="period" stroke="#9ca3af" />
             <YAxis stroke="#9ca3af" />
             <Tooltip
               contentStyle={{ backgroundColor: '#1f2937', border: '1px solid #374151', borderRadius: '8px' }}
               labelStyle={{ color: '#fff' }}
             />
-            <Area type="monotone" dataKey="lastYear" stroke="#6b7280" fill="#6b7280" fillOpacity={0.3} />
-            <Area type="monotone" dataKey="thisYear" stroke="#10b981" fill="#10b981" fillOpacity={0.6} />
+            <Area type="monotone" dataKey="previous" stroke="#6b7280" fill="#6b7280" fillOpacity={0.3} />
+            <Area type="monotone" dataKey="current" stroke="#10b981" fill="#10b981" fillOpacity={0.6} />
           </AreaChart>
         </ResponsiveContainer>
         <div className="flex justify-center gap-8 mt-4">
           <div className="flex items-center gap-2">
             <div className="w-3 h-3 rounded-full bg-gray-500" />
-            <span className="text-sm text-gray-400">Feb 2025</span>
+            <span className="text-sm text-gray-400">Previous {grainLabelMap[grain].toLowerCase()}</span>
           </div>
           <div className="flex items-center gap-2">
             <div className="w-3 h-3 rounded-full bg-green-500" />
-            <span className="text-sm text-gray-400">Feb 2026</span>
+            <span className="text-sm text-gray-400">Current {grainLabelMap[grain].toLowerCase()}</span>
           </div>
         </div>
       </div>

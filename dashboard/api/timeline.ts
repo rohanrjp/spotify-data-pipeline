@@ -2,9 +2,29 @@ import { VercelRequest, VercelResponse } from '@vercel/node';
 import { query } from './db';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
+    const grainParam = (req.query.grain as string) || 'monthly';
+    const grainMap: Record<string, string> = {
+      weekly: 'week',
+      monthly: 'month',
+      yearly: 'year',
+    };
+    const dbGrain = grainMap[grainParam] || 'month';
+
     try {
-        // Assuming a simplified timeline query grouping by date
-        const timeline = await query("SELECT date_trunc('day', played_at) as date, count(*) as count FROM spotify_listening_history GROUP BY date ORDER BY date ASC LIMIT 30");
+        const timeline = await query(
+          `
+            SELECT
+              date_trunc($1, h.played_at)::date as date,
+              COUNT(*)::int as count,
+              ROUND(COUNT(*) * 0.05)::int as hours,
+              COUNT(DISTINCT t.artist_id)::int as artists
+            FROM spotify_listening_history h
+            LEFT JOIN spotify_tracks t ON t.id = h.track_id
+            GROUP BY 1
+            ORDER BY 1 ASC
+          `,
+          [dbGrain],
+        );
         res.status(200).json(timeline.rows);
     } catch (error) {
         console.error(error);

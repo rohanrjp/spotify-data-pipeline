@@ -36,20 +36,28 @@ export function WeeklyWrapped() {
     loadPeriods();
   }, [grain]);
 
+  useEffect(() => {
+    if (!showWrapped || !selectedDate) return;
+    void generateWrapped(selectedDate, false);
+  }, [selectedDate, grain]);
+
   const formatPeriod = (dateStr: string) => {
     const date = new Date(dateStr);
     return date.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
   };
 
-  const generateWrapped = async () => {
-    if (!selectedDate) return;
+  const generateWrapped = async (dateOverride?: string, showWrappedView = true) => {
+    const effectiveDate = dateOverride || selectedDate;
+    if (!effectiveDate) return;
 
     setLoading(true);
     try {
-      const res = await fetch(`/api/wrapped?grain=${grain}&date=${selectedDate}`);
+      const res = await fetch(`/api/wrapped?grain=${grain}&date=${effectiveDate}`);
       const data = await res.json();
       setWrappedData({ ...defaultWrapped, ...data });
-      setShowWrapped(true);
+      if (showWrappedView) {
+        setShowWrapped(true);
+      }
     } catch (error) {
       console.error('Failed to generate wrapped:', error);
     } finally {
@@ -94,7 +102,15 @@ export function WeeklyWrapped() {
 
           <div>
             <label className="block text-sm text-gray-400 mb-2">Period Date</label>
-            <select value={selectedDate} onChange={(e) => setSelectedDate(e.target.value)} className="w-full bg-[#1a1a1a] border border-white/10 rounded-xl px-4 py-2.5 text-sm font-medium text-white">
+            <select
+              value={selectedDate}
+              onChange={(e) => {
+                const date = e.target.value;
+                setSelectedDate(date);
+                void generateWrapped(date);
+              }}
+              className="w-full bg-[#1a1a1a] border border-white/10 rounded-xl px-4 py-2.5 text-sm font-medium text-white"
+            >
               {periods.map((p, idx) => {
                 const normalized = p.period_date.split(' ')[0];
                 return (
@@ -107,7 +123,7 @@ export function WeeklyWrapped() {
           </div>
 
           <div className="flex items-end">
-            <button onClick={generateWrapped} disabled={!selectedDate || loading} className="w-full py-2.5 bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl text-white font-semibold hover:from-purple-600 hover:to-pink-600 disabled:opacity-50 flex items-center justify-center gap-2">
+            <button onClick={() => void generateWrapped()} disabled={!selectedDate || loading} className="w-full py-2.5 bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl text-white font-semibold hover:from-purple-600 hover:to-pink-600 disabled:opacity-50 flex items-center justify-center gap-2">
               <Wand2 className="w-4 h-4" />
               {loading ? 'Generating…' : 'Generate Wrapped'}
             </button>
@@ -123,7 +139,10 @@ export function WeeklyWrapped() {
             return (
               <button
                 key={`${normalized}-${index}`}
-                onClick={() => setSelectedDate(normalized)}
+                onClick={() => {
+                  setSelectedDate(normalized);
+                  void generateWrapped(normalized);
+                }}
                 className={`text-left p-4 rounded-lg border transition-colors ${selectedDate === normalized ? 'border-purple-500 bg-purple-500/10' : 'border-gray-800 hover:border-gray-700 bg-gray-900/70'}`}
               >
                 <div className="flex items-center gap-3">
