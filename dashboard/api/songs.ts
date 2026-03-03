@@ -26,7 +26,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       params.push(dateParam);
     }
 
-    sqlQuery += ` ORDER BY play_count DESC LIMIT 50`;
+    sqlQuery += ` ORDER BY play_count DESC`;
     const result = await query(sqlQuery, params);
     
     console.log(`[SONGS API] Found ${result.rows.length} rows`);
