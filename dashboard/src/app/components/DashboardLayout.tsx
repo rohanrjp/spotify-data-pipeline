@@ -19,19 +19,52 @@ export function DashboardLayout() {
   const [lastSyncedText, setLastSyncedText] = useState('Sync time unavailable');
 
   useEffect(() => {
+    function parseLastSyncedValue(value: unknown): Date | null {
+      if (!value) {
+        return null;
+      }
+
+      if (value instanceof Date) {
+        return Number.isNaN(value.getTime()) ? null : value;
+      }
+
+      if (typeof value === 'number') {
+        const timestamp = value > 1_000_000_000_000 ? value : value * 1000;
+        const parsedFromNumber = new Date(timestamp);
+        return Number.isNaN(parsedFromNumber.getTime()) ? null : parsedFromNumber;
+      }
+
+      if (typeof value !== 'string') {
+        return null;
+      }
+
+      const directParse = new Date(value);
+      if (!Number.isNaN(directParse.getTime())) {
+        return directParse;
+      }
+
+      const normalizedIsoCandidate = value.replace(' ', 'T');
+      const normalizedParse = new Date(
+        /(?:Z|[+-]\d{2}:?\d{2})$/.test(normalizedIsoCandidate)
+          ? normalizedIsoCandidate
+          : `${normalizedIsoCandidate}Z`,
+      );
+
+      return Number.isNaN(normalizedParse.getTime()) ? null : normalizedParse;
+    }
+
     async function fetchLastSynced() {
       try {
         const response = await fetch('/api/last-synced');
-        const data = await response.json();
-        const lastSyncedAt = data?.lastSyncedAt;
-
-        if (!lastSyncedAt) {
+        if (!response.ok) {
           setLastSyncedText('Sync time unavailable');
           return;
         }
 
-        const parsedDate = new Date(lastSyncedAt);
-        if (Number.isNaN(parsedDate.getTime())) {
+        const data = await response.json();
+        const parsedDate = parseLastSyncedValue(data?.lastSyncedAt ?? data?.last_synced_at);
+
+        if (!parsedDate) {
           setLastSyncedText('Sync time unavailable');
           return;
         }
