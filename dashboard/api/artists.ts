@@ -24,7 +24,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       params.push(dateParam);
     }
 
-    sqlQuery += ` ORDER BY play_count DESC LIMIT 50`;
+    sqlQuery += ` ORDER BY play_count DESC`;
     const result = await query(sqlQuery, params);
 
     res.status(200).json(result.rows);
